@@ -3,19 +3,22 @@ package com.example.account.dto;
 import lombok.*;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-public class CreateAccount {
+public class DeleteAccount {
     @Getter
     @Setter
     @AllArgsConstructor
     public static class Request {
         @NonNull
-        @Min(1)
+        @Min(1)//최소값
         private Long userId;
-        @NonNull
-        @Min(0)
-        private Long initialBalance;
+
+        @NotBlank
+        @Size(min = 10, max = 10)//자리수
+        private String accountNumber;
     }
 
     @Getter
@@ -26,13 +29,13 @@ public class CreateAccount {
     public static class Response {
         private Long userId;
         private String accountNumber;
-        private LocalDateTime registeredAt;
+        private LocalDateTime unRegisteredAt;
 
         public static Response from(AccountDto accountDto) {
             return Response.builder()
                     .userId(accountDto.getUserId())
                     .accountNumber(accountDto.getAccountNumber())
-                    .registeredAt(accountDto.getRegisterdAt())
+                    .unRegisteredAt(accountDto.getUnRegisterdAt())
                     .build();
 
         }
