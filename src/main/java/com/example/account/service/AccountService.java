@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.account.type.AccountStatus.IN_USE;
+import static com.example.account.type.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor//생성자 생성시 반드시 들어가야하는 데이터 를 생성자로 생성.ex:final
@@ -34,7 +37,7 @@ public class AccountService {
     public AccountDto createAccount(Long userId, Long initialBalance) {
         //userId확인 없을시 예외처리 발생
         AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
 
         //계좌수 확인
         validateCreateAccount(accountUser);
@@ -71,7 +74,7 @@ public class AccountService {
     public AccountDto deleteAccount(Long userId, String accountNumber) {
         //유저id로 유저조회
         AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
 
@@ -87,16 +90,30 @@ public class AccountService {
 
     private void validateDeleteAccount(AccountUser accountUser, Account account) {
         if (!Objects.equals(accountUser.getId(), account.getAccountUser().getId())) {
-            throw new AccountException(ErrorCode.USER_ACCOUNT_UNMATCH);
+            throw new AccountException(USER_ACCOUNT_UNMATCH);
         }
 
          if (account.getAccountStatus() == AccountStatus.UNREGISTERED) {
-             throw new AccountException(ErrorCode.ACCOUNT_ALREADY_UNREGISTRED);
+             throw new AccountException(ACCOUNT_ALREADY_UNREGISTRED);
          }
 
          if (account.getBalance() > 0) {
-             throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
+             throw new AccountException(BALANCE_NOT_EMPTY);
          }
 
+    }
+
+    //계좌 확인
+    @Transactional
+    public List<AccountDto> getAccountByUserId(Long userId) {
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+
+        List<Account> accounts = accountRepository
+                .findByAccountUser(accountUser);
+
+        return accounts.stream()
+                .map(AccountDto::fromEntity)
+                .collect(Collectors.toList());
     }
 }
