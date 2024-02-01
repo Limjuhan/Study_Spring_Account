@@ -31,7 +31,7 @@ public class Transaction {
     @ManyToOne // 트랜젝션 n개가 특정account하나에 연결
     private Account account;
     private Long amount;
-    private Long balanceSnapshot;
+    private Long balanceSnapshot;//거래후 계좌 잔액
 
     private String transactionId;//거래고유id
     private LocalDateTime transactedAt;

@@ -14,5 +14,6 @@ import java.util.Optional;
 public interface TransactionRepository
         extends JpaRepository<Transaction, Long> {//<엔티티, 프라이머리키>
 
-
+    //transactionId컬럼을 통해서 select하는 쿼리가 자동생성.
+    Optional<Transaction> findByTransactionId(String transactionId);
 }
